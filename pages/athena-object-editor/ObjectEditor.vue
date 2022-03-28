@@ -7,68 +7,71 @@
         <input class="animation-name-input" placeholder="Some Animation" v-model="objectData.animationName" />
         <input class="animation-flag-input" placeholder="49" v-model="objectData.animationFlag" />
 
-        <button class="attach-button">Attach Object</button>
+        <button class="attach-button" @click="attachObject">Attach Object</button>
         <button class="detach-button">Detach Object</button>
         <button class="animation-button" @click="playAnim">Play Animation</button>
         <button class="cancel-animation-button" @click="cancelAnim">Cancel Animation</button>
         <button class="filesystem-button" @click="createFile">Write to Filesystem</button>
         <div class="sliders">
-            <div class="stack">
-                <p style="text-align: center">Position Data</p>
+            <div class="stack mt-6" style="min-width: 300px">
+
                 <div class="split split-full space-between">
                     <RangeInput
                         :minIndex="minIndex"
                         :increment="increment"
-                        :indexValue="indexValue"
+                        :indexValue="parseInt(objectData.position.x.toFixed(2))"
                         :maxIndex="maxIndex"
                         @input="(e) => generateAttachable('posX', parseFloat(e.target['value']))"
                         class="position-slider"
                     />
                     <RangeInput
+                        :minIndex="rotMinIndex"
+                        :increment="rotIncrement"
+                        :indexValue="parseInt(objectData.rotation.x.toFixed(2))"
+                        :maxIndex="rotMaxIndex"
+                        @input="(e) => generateAttachable('rotX', parseFloat(e.target['value']))"
+                        class="position-slider"
+                    />
+                </div>
+
+                <div class="split split-full space-between mt-6">
+                    <RangeInput
                         :minIndex="minIndex"
                         :increment="increment"
-                        :indexValue="indexValue"
+                        :indexValue="parseInt(objectData.position.y.toFixed(2))"
                         :maxIndex="maxIndex"
                         @input="(e) => generateAttachable('posY', parseFloat(e.target['value']))"
                         class="position-slider"
                     />
                     <RangeInput
-                        :minIndex="minIndex"
-                        :increment="increment"
-                        :indexValue="indexValue"
-                        :maxIndex="maxIndex"
-                        @input="(e) => generateAttachable('posZ', parseFloat(e.target['value']))"
-                        class="position-slider"
-                    />
-                </div>
-                <br />
-                <p style="text-align: center">Rotation Data</p>
-                <div class="split split-full space-between">
-                    <RangeInput
                         :minIndex="rotMinIndex"
                         :increment="rotIncrement"
-                        :indexValue="rotIndexValue"
-                        :maxIndex="rotMaxIndex"
-                        @input="(e) => generateAttachable('rotX', parseFloat(e.target['value']))"
-                        class="position-slider"
-                    />
-                    <RangeInput
-                        :minIndex="rotMinIndex"
-                        :increment="rotIncrement"
-                        :indexValue="rotIndexValue"
+                        :indexValue="parseInt(objectData.rotation.y.toFixed(2))"
                         :maxIndex="rotMaxIndex"
                         @input="(e) => generateAttachable('rotY', parseFloat(e.target['value']))"
                         class="position-slider"
                     />
+                </div>
+
+                <div class="split split-full space-between mt-6">
+                    <RangeInput
+                        :minIndex="minIndex"
+                        :increment="increment"
+                        :indexValue="parseInt(objectData.position.z.toFixed(2))"
+                        :maxIndex="maxIndex"
+                        @input="(e) => generateAttachable('posZ', parseFloat(e.target['value']))"
+                        class="position-slider"
+                    />
                     <RangeInput
                         :minIndex="rotMinIndex"
                         :increment="rotIncrement"
-                        :indexValue="rotIndexValue"
+                        :indexValue="parseInt(objectData.rotation.z.toFixed(2))"
                         :maxIndex="rotMaxIndex"
                         @input="(e) => generateAttachable('rotZ', parseFloat(e.target['value']))"
                         class="position-slider"
                     />
                 </div>
+
             </div>
         </div>
         <img class="logo" src="./images/LordDevelopment.png" />
@@ -102,7 +105,7 @@ export default defineComponent({
     data() {
         return {
             // Position =>
-            minIndex: -15,
+            minIndex: 0,
             indexValue: 0,
             increment: 0.1,
             maxIndex: 15,
@@ -133,11 +136,10 @@ export default defineComponent({
     },
     mounted() {
         if ('alt' in window) {
-            alt.on(`${ComponentName}:SendSomeData`, this.sendSomeData);
+            alt.on(`SetEditorData`, this.setEditorData);
             alt.emit(`${ComponentName}:Ready`);
         }
 
-        // Add Keybinds for In-Menu
         document.addEventListener('keyup', this.handleKeyPress);
     },
     unmounted() {
@@ -147,6 +149,18 @@ export default defineComponent({
         document.removeEventListener('keyup', this.handleKeyPress);
     },
     methods: {
+        setEditorData(pos, rot) {
+            this.objectData.position.x = pos.x;
+            this.objectData.position.y = pos.y;
+            this.objectData.position.z = pos.z;
+
+            this.objectData.rotation.x = rot.x;
+            this.objectData.rotation.y = rot.y;
+            this.objectData.rotation.z = rot.z;
+        },
+        attachObject() {
+            alt.emit('AttachObject', this.objectData)
+        },
         generateAttachable(slot: string, data: number) {
             switch (slot) {
                 case 'posX':
@@ -170,7 +184,7 @@ export default defineComponent({
                 default:
                     break;
             }
-            alt.emit('LittleTest', this.objectData);
+            alt.emit('ChangeAttachedObject', this.objectData);
         },
         playAnim() {
             alt.emit('PlayAnimation', this.objectData.animation, this.objectData.animationName);
@@ -193,8 +207,8 @@ export default defineComponent({
 <style scoped>
 .wrapper {
     position: absolute;
-    height: 870px;
-    width: 650px;
+    height: 650px;
+    width: 550px;
     left: 25px;
     top: 40px;
     border-radius: 25px;
@@ -370,13 +384,13 @@ export default defineComponent({
 }
 .sliders {
     position: absolute;
-    top: 620px;
+    top: 400px;
 }
 .logo {
     position: absolute;
     height: 50px;
     width: 500px;
-    top: 800px;
+    top: 570px;
     border-radius: 0px;
 }
 ::placeholder {

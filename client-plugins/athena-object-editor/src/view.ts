@@ -2,10 +2,12 @@ import * as alt from 'alt-client';
 import { WebViewController } from '../../../client/extensions/view2';
 import ViewModel from '../../../client/models/viewModel';
 import { isAnyMenuOpen } from '../../../client/utility/menus';
-import IAttachable from '../../../shared/interfaces/iAttachable';
+import native from 'natives';
 
 // You should change this to match your Vue Template's ComponentName.
 const PAGE_NAME = 'ObjectEditor';
+let editorPosition = null;
+let editorRotation = null;
 
 class InternalFunctions implements ViewModel {
     static async open() {
@@ -71,12 +73,33 @@ class InternalFunctions implements ViewModel {
      */
     static async ready() {
         const view = await WebViewController.get();
-        view.emit(`${PAGE_NAME}:SendSomeData`, 'hello world');
+        if (alt.Player.local.hasMeta('AttachedObjectPosition') && alt.Player.local.hasMeta('AttachedObjectRotation')) {
+            view.emit('SetEditorData', editorPosition, editorRotation);
+        } else {
+            console.log('No Data to Emit.');
+        }
     }
 }
 
-alt.on('keydown', (key) =>  {
-    if(key === 120) {
+alt.on('keydown', (key) => {
+    if (key === 120) {
+        if (alt.Player.local.hasMeta('AttachedObjectPosition') && alt.Player.local.hasMeta('AttachedObjectRotation')) {
+            editorPosition = {
+                x: alt.Player.local.getMeta('AttachedObjectPosition').x,
+                y: alt.Player.local.getMeta('AttachedObjectPosition').y,
+                z: alt.Player.local.getMeta('AttachedObjectPosition').z,
+            }
+            editorRotation = { 
+                x: alt.Player.local.getMeta('AttachedObjectRotation').x,
+                y: alt.Player.local.getMeta('AttachedObjectRotation').y,
+                z: alt.Player.local.getMeta('AttachedObjectRotation').z,
+            }
+
+            alt.log(JSON.stringify(editorPosition));
+            alt.log(JSON.stringify(editorRotation));
+        } else {
+            console.log('No Data');
+        }
         InternalFunctions.open();
     }
 });
