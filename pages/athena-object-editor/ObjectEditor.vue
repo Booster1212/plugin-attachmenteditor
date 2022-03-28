@@ -71,16 +71,6 @@
                 </div>
             </div>
         </div>
-        <div class="json-wrapper">
-            <p class="json-title" style="text-align: center">
-                const changeMe: IAttachable = <br />{ bone: {{ objectData.boneId }}, model: {{ objectData.model }},
-                <br />pos: { x: {{ objectData.position.x }}, y: {{ objectData.position.y }}, z:
-                {{ objectData.position.z }} }, <br />rot: { x: {{ objectData.rotation.x }}, y:
-                {{ objectData.rotation.y }}, z: {{ objectData.rotation.z }} }, uid: 'Change Me!' }
-            </p>
-        </div>
-
-        <button class="generate-btn">Generated JSON</button>
         <img class="logo" src="./images/LordDevelopment.png" />
     </div>
 </template>
@@ -380,41 +370,7 @@ export default defineComponent({
 }
 .sliders {
     position: absolute;
-    top: 450px;
-}
-.json-wrapper {
-    /* Frame 1 */
-    position: absolute;
-    width: 604px;
-    height: 112px;
-    top: 670px;
-    border-radius: 0px;
-
-    background: rgba(43, 126, 172, 0.8);
-    z-index: 100;
-    user-select: all;
-}
-.json-title {
-    user-select: all;
-    z-index: 150;
-}
-.generate-btn {
-    /* Generate */
-
-    position: absolute;
-    width: 269px;
-    height: 46px;
-
-    background: rgba(43, 126, 172, 0.8);
-    border-radius: 25px 25px 0px 0px;
-    border: 0px;
-    top: 625px;
-    font-family: 'Inter';
-    font-style: normal;
-    font-size: 30px;
-    line-height: 39px;
-    color: white;
-    text-align: center;
+    top: 620px;
 }
 .logo {
     position: absolute;
