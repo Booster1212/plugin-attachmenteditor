@@ -2,12 +2,16 @@ import * as alt from 'alt-client';
 import { WebViewController } from '../../../client/extensions/view2';
 import ViewModel from '../../../client/models/viewModel';
 import { isAnyMenuOpen } from '../../../client/utility/menus';
-import native from 'natives';
+import Credits from '../../../client/utility/credits';
 
 // You should change this to match your Vue Template's ComponentName.
 const PAGE_NAME = 'ObjectEditor';
 let editorPosition = null;
 let editorRotation = null;
+let objectModel = null;
+let boneId = null;
+let animationDict = null;
+let animationName = null;
 
 class InternalFunctions implements ViewModel {
     static async open() {
@@ -73,33 +77,73 @@ class InternalFunctions implements ViewModel {
      */
     static async ready() {
         const view = await WebViewController.get();
-        if (alt.Player.local.hasMeta('AttachedObjectPosition') && alt.Player.local.hasMeta('AttachedObjectRotation')) {
-            view.emit('SetEditorData', editorPosition, editorRotation);
-        } else {
-            console.log('No Data to Emit.');
-        }
+
+        view.emit('SetEditorData', editorPosition, editorRotation, objectModel, boneId, animationDict, animationName);
     }
 }
 
 alt.on('keydown', (key) => {
     if (key === 120) {
-        if (alt.Player.local.hasMeta('AttachedObjectPosition') && alt.Player.local.hasMeta('AttachedObjectRotation')) {
+        if (alt.Player.local.hasMeta('AttachedObjectPosition')) {
             editorPosition = {
                 x: alt.Player.local.getMeta('AttachedObjectPosition').x,
                 y: alt.Player.local.getMeta('AttachedObjectPosition').y,
                 z: alt.Player.local.getMeta('AttachedObjectPosition').z,
-            }
-            editorRotation = { 
+            };
+        } else {
+            editorPosition = {
+                x: 0,
+                y: 0,
+                z: 0,
+            };
+        }
+
+        if (alt.Player.local.hasMeta('AttachedObjectRotation')) {
+            editorRotation = {
                 x: alt.Player.local.getMeta('AttachedObjectRotation').x,
                 y: alt.Player.local.getMeta('AttachedObjectRotation').y,
                 z: alt.Player.local.getMeta('AttachedObjectRotation').z,
-            }
-
-            alt.log(JSON.stringify(editorPosition));
-            alt.log(JSON.stringify(editorRotation));
+            };
         } else {
-            console.log('No Data');
+            editorRotation = {
+                x: 0,
+                y: 0,
+                z: 0,
+            };
         }
+
+        if (alt.Player.local.hasMeta('AttachedObjectModel')) {
+            objectModel = alt.Player.local.getMeta('AttachedObjectModel');
+        } else {
+            objectModel = 'No Object Model Set';
+        }
+
+        if (alt.Player.local.hasMeta('RagdollBone')) {
+            boneId = alt.Player.local.getMeta('RagdollBone');
+        } else {
+            boneId = 57005;
+        }
+
+        if (alt.Player.local.hasMeta('AnimationDict')) {
+            animationDict = alt.Player.local.getMeta('AnimationDict');
+        } else {
+            animationDict = 'No Dictionary Set';
+        }
+
+        if (alt.Player.local.hasMeta('AnimationName')) {
+            animationName = alt.Player.local.getMeta('AnimationName');
+        } else {
+            animationName = 'No Animation Set';
+        }
+
+        console.log(objectModel, boneId, animationDict, animationName);
+
         InternalFunctions.open();
+        Credits.create({
+            role: 'Athena Framework - Object Editor',
+            name: 'Developer: Der Lord!',
+            duration: 10000,
+            align: 'right',
+        });
     }
 });
