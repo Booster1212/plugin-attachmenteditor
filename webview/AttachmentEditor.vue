@@ -1,6 +1,6 @@
 <template v-slot:toolbar>
     <div class="flex-wrapper">
-        <Toolbar>AttachmentEditor</Toolbar>
+        <Toolbar @close-page="relayClosePage" pageName="AttachmentEditor">AttachmentEditor</Toolbar>
         <div class="main-wrapper">
             <div class="general-section">
                 <p>General Section</p>
@@ -137,13 +137,15 @@ function detachObject() {}
 
 function saveEditing() {
     if (editorObject.value.prop !== '') {
-    } else {
-        console.log('Please enter a prop to edit');
     }
 }
 
 function handlePosSwitch() {
     alt.emit(AttachmentEditorEvents.inputChanged, editorObject.value, posData.value);
+}
+
+function relayClosePage() {
+    alt.emit(`AttachmentEditor:Close`);
 }
 </script>
 
