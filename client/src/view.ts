@@ -3,7 +3,9 @@ import { Vector3 } from 'alt-worker';
 import * as native from 'natives';
 import { WebViewController } from '../../../../client/extensions/view2';
 import ViewModel from '../../../../client/models/viewModel';
+import { playAnimation } from '../../../../client/systems/animations';
 import { isAnyMenuOpen } from '../../../../client/utility/menus';
+import { ANIMATION_FLAGS } from '../../../../shared/flags/animationFlags';
 import { AttachmentEditorEvents } from '../../shared/enums/events';
 
 const view = await WebViewController.get();
@@ -135,6 +137,16 @@ view.on(AttachmentEditorEvents.inputChanged, (current: attachment, posData: { po
             1,
             true,
         );
+    }
+});
+
+view.on(AttachmentEditorEvents.playAnimation, (current: attachment, isPlaying: boolean) => {
+    if(current.animationDictionary != '' && current.animationName != '') {
+        if(isPlaying) {
+            playAnimation(current.animationDictionary, current.animationName, ANIMATION_FLAGS.STOP_LAST_FRAME);
+        } else {
+            native.clearPedTasks(alt.Player.local.scriptID);
+        }
     }
 });
 

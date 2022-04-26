@@ -6,11 +6,11 @@
                 <p>General Section</p>
             </div>
             <div class="input-wrapper">
-                <input type="text" placeholder="<Prop to Edit>" class="general-input" v-model="editorObject.prop" />
-                <input type="number" placeholder="57005" class="general-input" />
-                <input type="text" placeholder="<Animation Dictionary>" class="general-input" />
-                <input type="text" placeholder="<Animation Name>" class="general-input" />
-                <input type="text" placeholder="<Animation Flag>" class="general-input" />
+                <input type="text" placeholder="<Prop to Edit>" class="general-input" v-model="editorObject.prop"/>
+                <input type="number" placeholder="57005" class="general-input" v-model="editorObject.boneId"/>
+                <input type="text" placeholder="<Animation Dictionary>" class="general-input" v-model="editorObject.animationDictionary"/>
+                <input type="text" placeholder="<Animation Name>" class="general-input" v-model="editorObject.animationName"/>
+                <input type="text" placeholder="<Animation Flag> (2)" class="general-input" v-model="editorObject.animationFlag" />
             </div>
 
             <div class="position-section">
@@ -22,30 +22,33 @@
                     <input
                         type="range"
                         min="0"
-                        max="360"
+                        max="1"
                         class="pos-input"
                         v-model="posData.pos.x"
                         @input="handlePosSwitch"
+                        step="0.1"
                     />
 
                     Position Y {{ posData.pos.y }}
                     <input
                         type="range"
                         min="0"
-                        max="360"
+                        max="1"
                         class="pos-input"
                         v-model="posData.pos.y"
                         @input="handlePosSwitch"
+                        step="0.1"
                     />
 
                     Position Z {{ posData.pos.z }}
                     <input
                         type="range"
                         min="0"
-                        max="360"
+                        max="1"
                         class="pos-input"
                         v-model="posData.pos.z"
                         @input="handlePosSwitch"
+                        step="0.1"
                     />
                 </div>
                 <div class="rot">
@@ -85,8 +88,8 @@
             </div>
             <div class="button-wrapper">
                 <button @click="attachObject">Attach Object</button>
-                <button>Detach Object</button>
-                <button>Play Animation</button>
+                <button @click="detachObject">Detach Object</button>
+                <button @click="playAnimation">Play/Stop Anim</button>
                 <button @click="saveEditing">Save Editing</button>
             </div>
         </div>
@@ -103,7 +106,7 @@ defineComponent({
         Toolbar,
     },
 });
-
+let isPlayingAnim = false;
 let editorObject = ref({
     prop: ref('prop_tool_blowtorch'),
     boneId: ref(57005),
@@ -134,10 +137,22 @@ function attachObject() {
 }
 
 function detachObject() {}
-
+function playAnimation() {
+    if ('alt' in window) {
+        if (!isPlayingAnim) {
+            isPlayingAnim = true;
+            console.log(isPlayingAnim);
+            alt.emit(AttachmentEditorEvents.playAnimation, editorObject.value, isPlayingAnim);
+        } else {
+            isPlayingAnim = false;
+            console.log(isPlayingAnim);
+            alt.emit(AttachmentEditorEvents.playAnimation, editorObject.value, isPlayingAnim);
+        }
+    }
+}
 function saveEditing() {
     if (editorObject.value.prop !== '') {
-        if('alt' in window) {
+        if ('alt' in window) {
             alt.emit(AttachmentEditorEvents.generateFile, editorObject.value, posData.value);
         }
     }
