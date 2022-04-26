@@ -87,7 +87,7 @@
                 <button @click="attachObject">Attach Object</button>
                 <button>Detach Object</button>
                 <button>Play Animation</button>
-                <button>Save Editing</button>
+                <button @click="saveEditing">Save Editing</button>
             </div>
         </div>
     </div>
@@ -137,6 +137,9 @@ function detachObject() {}
 
 function saveEditing() {
     if (editorObject.value.prop !== '') {
+        if('alt' in window) {
+            alt.emit(AttachmentEditorEvents.generateFile, editorObject.value, posData.value);
+        }
     }
 }
 

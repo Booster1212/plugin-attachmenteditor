@@ -138,6 +138,10 @@ view.on(AttachmentEditorEvents.inputChanged, (current: attachment, posData: { po
     }
 });
 
+view.on(AttachmentEditorEvents.generateFile, (current: attachment, posData: { pos: Vector3; rot: Vector3 }) => {
+    alt.emitServer(AttachmentEditorEvents.generateFile, current, posData);
+});
+
 function removeObject() {
     if (createdObject) {
         native.detachEntity(createdObject, true, true);
