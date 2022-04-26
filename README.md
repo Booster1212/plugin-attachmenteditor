@@ -1,4 +1,4 @@
-# Athena Object Editor
+# Athena Framework - Attachment Editor
 
 Simple Attachment Editor which allows you to have an Athena-based solution to attach props correctly to your character.
 
