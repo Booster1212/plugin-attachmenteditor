@@ -136,7 +136,11 @@ function attachObject() {
     }
 }
 
-function detachObject() {}
+function detachObject() {
+    if ('alt' in window) {
+        alt.emit(AttachmentEditorEvents.detachObject);
+    }
+}
 function playAnimation() {
     if ('alt' in window) {
         if (!isPlayingAnim) {
@@ -193,7 +197,7 @@ function relayClosePage() {
     align-content: center;
     align-items: center;
 
-    background: rgb(0, 0, 0);
+    background: rgb(12, 12, 15);
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
 }

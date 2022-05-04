@@ -150,6 +150,14 @@ view.on(AttachmentEditorEvents.playAnimation, (current: attachment, isPlaying: b
     }
 });
 
+view.on(AttachmentEditorEvents.detachObject, () => {
+    try {
+        removeObject();
+    } catch(e) {
+        alt.log(`[AttachmentEditor] ${e}`);
+    }
+});
+
 view.on(AttachmentEditorEvents.generateFile, (current: attachment, posData: { pos: Vector3; rot: Vector3 }) => {
     alt.emitServer(AttachmentEditorEvents.generateFile, current, posData);
 });
