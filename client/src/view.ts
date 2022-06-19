@@ -5,14 +5,13 @@ import { WebViewController } from '../../../../client/extensions/view2';
 import ViewModel from '../../../../client/models/viewModel';
 import { playAnimation } from '../../../../client/systems/animations';
 import { isAnyMenuOpen } from '../../../../client/utility/menus';
-import { ANIMATION_FLAGS } from '../../../../shared/flags/animationFlags';
 import { AttachmentEditorEvents } from '../../shared/enums/events';
 
 const view = await WebViewController.get();
 const PAGE_NAME = 'AttachmentEditor';
 let createdObject: number | undefined;
 
-type attachment = {
+type currentAttachment = {
     prop: string;
     boneId: number;
     animationDictionary: string;
@@ -28,7 +27,6 @@ class InternalFunctions implements ViewModel {
 
         await WebViewController.setOverlaysVisible(false);
 
-        const view = await WebViewController.get();
         view.on(`${PAGE_NAME}:Ready`, InternalFunctions.ready);
         view.on(`${PAGE_NAME}:Close`, InternalFunctions.close);
 
@@ -45,7 +43,6 @@ class InternalFunctions implements ViewModel {
         alt.toggleGameControls(true);
         WebViewController.setOverlaysVisible(true);
 
-        const view = await WebViewController.get();
         view.off(`${PAGE_NAME}:Ready`, InternalFunctions.ready);
         view.off(`${PAGE_NAME}:Close`, InternalFunctions.close);
 
@@ -58,17 +55,17 @@ class InternalFunctions implements ViewModel {
     }
 
     static async ready() {
-        const view = await WebViewController.get();
+        console.log('ready');
     }
 }
 
-view.on(AttachmentEditorEvents.emitDataToClient, (current: attachment, posData: { pos: Vector3; rot: Vector3 }) => {
+view.on(AttachmentEditorEvents.EMIT_DATA, (current: currentAttachment, posData: { pos: Vector3; rot: Vector3 }) => {
     try {
         removeObject();
     } catch (e) {
         alt.log(`[AttachmentEditor] ${e}`);
     }
-        
+
     native.requestModel(alt.hash(current.prop));
     if (native.hasModelLoaded(alt.hash(current.prop))) {
         createdObject = native.createObject(
@@ -101,7 +98,7 @@ view.on(AttachmentEditorEvents.emitDataToClient, (current: attachment, posData: 
     }
 });
 
-view.on(AttachmentEditorEvents.inputChanged, (current: attachment, posData: { pos: Vector3; rot: Vector3 }) => {
+view.on(AttachmentEditorEvents.INPUT_CHANGED, (current: currentAttachment, posData: { pos: Vector3; rot: Vector3 }) => {
     try {
         removeObject();
     } catch (e) {
@@ -140,38 +137,33 @@ view.on(AttachmentEditorEvents.inputChanged, (current: attachment, posData: { po
     }
 });
 
-view.on(AttachmentEditorEvents.playAnimation, (current: attachment, isPlaying: boolean) => {
-    if(current.animationDictionary != '' && current.animationName != '') {
-        if(isPlaying) {
-            playAnimation(current.animationDictionary, current.animationName, ANIMATION_FLAGS.STOP_LAST_FRAME);
-        } else {
-            native.clearPedTasks(alt.Player.local.scriptID);
-        }
+view.on(AttachmentEditorEvents.PLAY_ANIMATION, (current: currentAttachment, isPlaying: boolean) => {
+    if (current.animationDictionary != '' && current.animationName != '') {
+        isPlaying ? playAnimation(current.animationDictionary, current.animationName, current.animationFlag) : native.clearPedTasks(alt.Player.local.scriptID);
     }
 });
 
-view.on(AttachmentEditorEvents.detachObject, () => {
+view.on(AttachmentEditorEvents.DETACH_OBJECT, () => {
     try {
         removeObject();
-    } catch(e) {
+    } catch (e) {
         alt.log(`[AttachmentEditor] ${e}`);
     }
 });
 
-view.on(AttachmentEditorEvents.generateFile, (current: attachment, posData: { pos: Vector3; rot: Vector3 }) => {
-    alt.emitServer(AttachmentEditorEvents.generateFile, current, posData);
+view.on(AttachmentEditorEvents.GENERATE_FILE, (current: currentAttachment, posData: { pos: Vector3; rot: Vector3 }) => {
+    alt.emitServer(AttachmentEditorEvents.GENERATE_FILE, current, posData);
 });
 
 function removeObject() {
-    if (createdObject) {
-        native.detachEntity(createdObject, true, true);
-        native.deleteObject(createdObject);
-    } else {
-        return;
-    }
+    createdObject ? (
+        native.detachEntity(createdObject, true, true),
+        native.deleteObject(createdObject),
+        createdObject = undefined
+    ) : undefined;
 }
 
-alt.on('keydown', (key) => {
+alt.on('keyup', (key) => {
     if (key === 123 && !alt.Player.local.hasMeta('AttachmentEditor')) {
         alt.Player.local.setMeta('AttachmentEditor', true);
         InternalFunctions.open();

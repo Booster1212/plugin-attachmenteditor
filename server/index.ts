@@ -1,9 +1,11 @@
 import * as alt from 'alt-server';
 import { PluginSystem } from '../../../server/systems/plugins';
-import { config } from '../shared/config';
 
 import './src/events';
 
-PluginSystem.registerPlugin(config.name, () => {
-    alt.log(`~lg~[PLUGIN] ==> ${config.name} has been loaded!`);
+const PLUGIN_NAME = 'AttachmentEditor';
+const AUTHORS = ['Der Lord!'];
+
+PluginSystem.registerPlugin(PLUGIN_NAME, () => {
+    alt.log(`~lg~[PLUGIN] ==> ${PLUGIN_NAME} has been loaded! (~w~Authors: ${AUTHORS.join(', ')}~lg~)`);
 });

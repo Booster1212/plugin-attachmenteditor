@@ -1,7 +1,7 @@
 export const enum AttachmentEditorEvents { 
-    detachObject = 'detachObject',
-    emitDataToClient = 'AttachmentEditor:EmitDataToClient',
-    playAnimation = 'AttachmentEditor:PlayAnimation',
-    inputChanged = 'AttachmentEditor:InputChanged',
-    generateFile = 'AttachmentEditor:GenerateFile',
+    DETACH_OBJECT = 'detachObject',
+    EMIT_DATA = 'AttachmentEditor:EmitDataToClient',
+    PLAY_ANIMATION = 'AttachmentEditor:PlayAnimation',
+    INPUT_CHANGED = 'AttachmentEditor:InputChanged',
+    GENERATE_FILE = 'AttachmentEditor:GenerateFile',
 }

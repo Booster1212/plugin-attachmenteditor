@@ -16,9 +16,9 @@ type attachment = {
 };
 
 alt.onClient(
-    AttachmentEditorEvents.generateFile,
-    (player: alt.Player, current: attachment, posData: { pos: Vector3; rot: Vector3 }) => {
-        if(!config.useFileSystem) {
+    AttachmentEditorEvents.GENERATE_FILE,
+    async (_player: alt.Player, current: attachment, posData: { pos: Vector3; rot: Vector3 }) => {
+        if (!config.useFileSystem) {
             const transformedObject: IAttachable = {
                 bone: current.boneId,
                 pos: {
@@ -57,7 +57,7 @@ alt.onClient(
                 model: current.prop,
                 uid: `FileSystem-${current.prop}`,
             };
-            writeFile(currentPath + `${current.prop}.json`, JSON.stringify(transformedObject, undefined, 4))
+            await writeFile(currentPath + `${current.prop}.json`, JSON.stringify(transformedObject, undefined, 4))
                 .then(() => {
                     alt.log(`~lg~[AttachmentEditor] ==> Generated File for ${current.prop}`);
                 })
