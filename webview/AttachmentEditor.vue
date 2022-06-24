@@ -131,14 +131,14 @@ let posData = ref({
 function attachObject() {
     if (editorObject.value.prop !== '') {
         if ('alt' in window) {
-            alt.emit(AttachmentEditorEvents.emitDataToClient, editorObject.value, posData.value);
+            alt.emit(AttachmentEditorEvents.EMIT_DATA, editorObject.value, posData.value);
         }
     }
 }
 
 function detachObject() {
     if ('alt' in window) {
-        alt.emit(AttachmentEditorEvents.detachObject);
+        alt.emit(AttachmentEditorEvents.DETACH_OBJECT);
     }
 }
 function playAnimation() {
@@ -146,24 +146,24 @@ function playAnimation() {
         if (!isPlayingAnim) {
             isPlayingAnim = true;
             console.log(isPlayingAnim);
-            alt.emit(AttachmentEditorEvents.playAnimation, editorObject.value, isPlayingAnim);
+            alt.emit(AttachmentEditorEvents.PLAY_ANIMATION, editorObject.value, isPlayingAnim);
         } else {
             isPlayingAnim = false;
             console.log(isPlayingAnim);
-            alt.emit(AttachmentEditorEvents.playAnimation, editorObject.value, isPlayingAnim);
+            alt.emit(AttachmentEditorEvents.PLAY_ANIMATION, editorObject.value, isPlayingAnim);
         }
     }
 }
 function saveEditing() {
     if (editorObject.value.prop !== '') {
         if ('alt' in window) {
-            alt.emit(AttachmentEditorEvents.generateFile, editorObject.value, posData.value);
+            alt.emit(AttachmentEditorEvents.GENERATE_FILE, editorObject.value, posData.value);
         }
     }
 }
 
 function handlePosSwitch() {
-    alt.emit(AttachmentEditorEvents.inputChanged, editorObject.value, posData.value);
+    alt.emit(AttachmentEditorEvents.INPUT_CHANGED, editorObject.value, posData.value);
 }
 
 function relayClosePage() {
