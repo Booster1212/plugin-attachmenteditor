@@ -1,3 +1,4 @@
+import { AthenaClient } from '@AthenaClient/api/athena';
 import * as alt from 'alt-client';
 import { Vector3 } from 'alt-worker';
 import * as native from 'natives';
@@ -27,12 +28,10 @@ class InternalFunctions implements ViewModel {
 
         await WebViewController.setOverlaysVisible(false);
 
-        view.on(`${PAGE_NAME}:Ready`, InternalFunctions.ready);
-        view.on(`${PAGE_NAME}:Close`, InternalFunctions.close);
-
-        WebViewController.openPages([PAGE_NAME]);
-        WebViewController.focus();
-        WebViewController.showCursor(true);
+        AthenaClient.webview.ready(PAGE_NAME, InternalFunctions.ready);
+        AthenaClient.webview.open([PAGE_NAME], true, InternalFunctions.close);
+        AthenaClient.webview.focus();
+        AthenaClient.webview.showCursor(true);
 
         alt.toggleGameControls(false);
 
@@ -59,108 +58,114 @@ class InternalFunctions implements ViewModel {
     }
 }
 
-view.on(AttachmentEditorEvents.EMIT_DATA, (current: currentAttachment, posData: { pos: Vector3; rot: Vector3 }) => {
-    try {
-        removeObject();
-    } catch (e) {
-        alt.log(`[AttachmentEditor] ${e}`);
-    }
+AthenaClient.webview.on(
+    AttachmentEditorEvents.EMIT_DATA,
+    (current: currentAttachment, posData: { pos: Vector3; rot: Vector3 }) => {
+        try {
+            removeObject();
+        } catch (e) {
+            alt.log(`[AttachmentEditor] ${e}`);
+        }
 
-    native.requestModel(alt.hash(current.prop));
-    if (native.hasModelLoaded(alt.hash(current.prop))) {
-        createdObject = native.createObject(
-            alt.hash(current.prop),
-            +posData.pos.x,
-            +posData.pos.y,
-            +posData.pos.z,
-            true,
-            true,
-            true,
-        );
+        native.requestModel(alt.hash(current.prop));
+        if (native.hasModelLoaded(alt.hash(current.prop))) {
+            createdObject = native.createObject(
+                alt.hash(current.prop),
+                +posData.pos.x,
+                +posData.pos.y,
+                +posData.pos.z,
+                true,
+                true,
+                true,
+            );
 
-        native.attachEntityToEntity(
-            createdObject,
-            alt.Player.local.scriptID,
-            native.getPedBoneIndex(alt.Player.local, current.boneId),
-            +posData.pos.y,
-            +posData.pos.x,
-            +posData.pos.z,
-            +posData.rot.x,
-            +posData.rot.y,
-            +posData.rot.z,
-            false,
-            true,
-            false,
-            false,
-            1,
-            true,
-        );
-    }
-});
+            native.attachEntityToEntity(
+                createdObject,
+                alt.Player.local.scriptID,
+                native.getPedBoneIndex(alt.Player.local, current.boneId),
+                +posData.pos.y,
+                +posData.pos.x,
+                +posData.pos.z,
+                +posData.rot.x,
+                +posData.rot.y,
+                +posData.rot.z,
+                false,
+                true,
+                false,
+                false,
+                1,
+                true,
+                false,
+            );
+        }
+    },
+);
 
-view.on(AttachmentEditorEvents.INPUT_CHANGED, (current: currentAttachment, posData: { pos: Vector3; rot: Vector3 }) => {
-    try {
-        removeObject();
-    } catch (e) {
-        alt.log(`[AttachmentEditor] ${e}`);
-    }
+AthenaClient.webview.on(
+    AttachmentEditorEvents.INPUT_CHANGED,
+    (current: currentAttachment, posData: { pos: Vector3; rot: Vector3 }) => {
+        try {
+            removeObject();
+        } catch (e) {
+            alt.log(`[AttachmentEditor] ${e}`);
+        }
 
-    native.requestModel(alt.hash(current.prop));
-    if (native.hasModelLoaded(alt.hash(current.prop))) {
-        createdObject = native.createObject(
-            alt.hash(current.prop),
-            +posData.pos.x,
-            +posData.pos.y,
-            +posData.pos.z,
-            true,
-            true,
-            true,
-        );
+        native.requestModel(alt.hash(current.prop));
+        if (native.hasModelLoaded(alt.hash(current.prop))) {
+            createdObject = native.createObject(
+                alt.hash(current.prop),
+                +posData.pos.x,
+                +posData.pos.y,
+                +posData.pos.z,
+                true,
+                true,
+                true,
+            );
 
-        native.attachEntityToEntity(
-            createdObject,
-            alt.Player.local.scriptID,
-            native.getPedBoneIndex(alt.Player.local, current.boneId),
-            +posData.pos.x,
-            +posData.pos.y,
-            +posData.pos.z,
-            +posData.rot.x,
-            +posData.rot.y,
-            +posData.rot.z,
-            false,
-            true,
-            true,
-            false,
-            1,
-            true,
-        );
-    }
-});
+            native.attachEntityToEntity(
+                createdObject,
+                alt.Player.local.scriptID,
+                native.getPedBoneIndex(alt.Player.local, current.boneId),
+                +posData.pos.x,
+                +posData.pos.y,
+                +posData.pos.z,
+                +posData.rot.x,
+                +posData.rot.y,
+                +posData.rot.z,
+                false,
+                true,
+                true,
+                false,
+                1,
+                true,
+                false,
+            );
+        }
+    },
+);
 
-view.on(AttachmentEditorEvents.PLAY_ANIMATION, (current: currentAttachment, isPlaying: boolean) => {
+AthenaClient.webview.on(AttachmentEditorEvents.PLAY_ANIMATION, (current: currentAttachment, isPlaying: boolean) => {
     if (current.animationDictionary != '' && current.animationName != '') {
-        isPlaying ? playAnimation(current.animationDictionary, current.animationName, current.animationFlag) : native.clearPedTasks(alt.Player.local.scriptID);
+        isPlaying
+            ? playAnimation(current.animationDictionary, current.animationName, current.animationFlag)
+            : native.clearPedTasks(alt.Player.local.scriptID);
     }
 });
 
-view.on(AttachmentEditorEvents.DETACH_OBJECT, () => {
+AthenaClient.webview.on(AttachmentEditorEvents.DETACH_OBJECT, () => {
     try {
         removeObject();
     } catch (e) {
         alt.log(`[AttachmentEditor] ${e}`);
     }
-});
-
-view.on(AttachmentEditorEvents.GENERATE_FILE, (current: currentAttachment, posData: { pos: Vector3; rot: Vector3 }) => {
-    alt.emitServer(AttachmentEditorEvents.GENERATE_FILE, current, posData);
 });
 
 function removeObject() {
-    createdObject ? (
-        native.detachEntity(createdObject, true, true),
-        native.deleteObject(createdObject),
-        createdObject = undefined
-    ) : undefined;
+    createdObject
+        ? (native.detachEntity(createdObject, true, true),
+          native.deleteObject(createdObject),
+          (createdObject = undefined))
+        : undefined;
 }
 
 alt.on('keyup', (key) => {

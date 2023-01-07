@@ -6,11 +6,26 @@
                 <p>General Section</p>
             </div>
             <div class="input-wrapper">
-                <input type="text" placeholder="<Prop to Edit>" class="general-input" v-model="editorObject.prop"/>
-                <input type="number" placeholder="57005" class="general-input" v-model="editorObject.boneId"/>
-                <input type="text" placeholder="<Animation Dictionary>" class="general-input" v-model="editorObject.animationDictionary"/>
-                <input type="text" placeholder="<Animation Name>" class="general-input" v-model="editorObject.animationName"/>
-                <input type="text" placeholder="<Animation Flag> (2)" class="general-input" v-model="editorObject.animationFlag" />
+                <input type="text" placeholder="<Prop to Edit>" class="general-input" v-model="editorObject.prop" />
+                <input type="number" placeholder="57005" class="general-input" v-model="editorObject.boneId" />
+                <input
+                    type="text"
+                    placeholder="<Animation Dictionary>"
+                    class="general-input"
+                    v-model="editorObject.animationDictionary"
+                />
+                <input
+                    type="text"
+                    placeholder="<Animation Name>"
+                    class="general-input"
+                    v-model="editorObject.animationName"
+                />
+                <input
+                    type="text"
+                    placeholder="<Animation Flag> (2)"
+                    class="general-input"
+                    v-model="editorObject.animationFlag"
+                />
             </div>
 
             <div class="position-section">
@@ -97,9 +112,12 @@
 </template>
 
 <script lang="ts" setup>
+// @ts-nocheck
 import { defineComponent, ref } from 'vue';
+import WebViewEvents from '../../../../../src-webviews/src/utility/webViewEvents';
 import { AttachmentEditorEvents } from '../shared/enums/events';
 import Toolbar from '@components/Toolbar.vue';
+
 defineComponent({
     name: 'AttachmentEditor',
     components: {
@@ -131,14 +149,14 @@ let posData = ref({
 function attachObject() {
     if (editorObject.value.prop !== '') {
         if ('alt' in window) {
-            alt.emit(AttachmentEditorEvents.EMIT_DATA, editorObject.value, posData.value);
+            WebViewEvents.emitClient(AttachmentEditorEvents.EMIT_DATA, editorObject.value, posData.value);
         }
     }
 }
 
 function detachObject() {
     if ('alt' in window) {
-        alt.emit(AttachmentEditorEvents.DETACH_OBJECT);
+        WebViewEvents.emitClient(AttachmentEditorEvents.DETACH_OBJECT);
     }
 }
 function playAnimation() {
@@ -146,28 +164,28 @@ function playAnimation() {
         if (!isPlayingAnim) {
             isPlayingAnim = true;
             console.log(isPlayingAnim);
-            alt.emit(AttachmentEditorEvents.PLAY_ANIMATION, editorObject.value, isPlayingAnim);
+            WebViewEvents.emitClient(AttachmentEditorEvents.PLAY_ANIMATION, editorObject.value, isPlayingAnim);
         } else {
             isPlayingAnim = false;
             console.log(isPlayingAnim);
-            alt.emit(AttachmentEditorEvents.PLAY_ANIMATION, editorObject.value, isPlayingAnim);
+            WebViewEvents.emitClient(AttachmentEditorEvents.PLAY_ANIMATION, editorObject.value, isPlayingAnim);
         }
     }
 }
 function saveEditing() {
     if (editorObject.value.prop !== '') {
         if ('alt' in window) {
-            alt.emit(AttachmentEditorEvents.GENERATE_FILE, editorObject.value, posData.value);
+            WebViewEvents.emitServer(AttachmentEditorEvents.GENERATE_FILE, editorObject.value, posData.value);
         }
     }
 }
 
 function handlePosSwitch() {
-    alt.emit(AttachmentEditorEvents.INPUT_CHANGED, editorObject.value, posData.value);
+    WebViewEvents.emitClient(AttachmentEditorEvents.INPUT_CHANGED, editorObject.value, posData.value);
 }
 
 function relayClosePage() {
-    alt.emit(`AttachmentEditor:Close`);
+    WebViewEvents.emitClient(`AttachmentEditor:Close`);
 }
 </script>
 
