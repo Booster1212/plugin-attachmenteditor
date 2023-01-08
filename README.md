@@ -44,7 +44,7 @@ This project is licensed under the [GPL-3.0] License - see the LICENSE.md file f
 ## Links
 
 -   [Athena Framework](https://athenaframework.com/)
--   [Lord-Development Discord Server](https://discord.gg/zCqZ3XA7E3)
+-   [Hypedmedia.de - Discord Server](https://discord.gg/baHqqw7fbS)
 
 ## Support my work
 
