@@ -1,14 +1,13 @@
-import { AthenaClient } from '@AthenaClient/api/athena';
 import * as alt from 'alt-client';
-import { Vector3 } from 'alt-worker';
 import * as native from 'natives';
-import { WebViewController } from '../../../../client/extensions/view2';
+import * as AthenaClient from '@AthenaClient/api';
+
 import ViewModel from '../../../../client/models/viewModel';
+import { Vector3 } from 'alt-worker';
 import { playAnimation } from '../../../../client/systems/animations';
-import { isAnyMenuOpen } from '../../../../client/utility/menus';
 import { AttachmentEditorEvents } from '../../shared/enums/events';
 
-const view = await WebViewController.get();
+const view = await AthenaClient.webview.get();
 const PAGE_NAME = 'AttachmentEditor';
 let createdObject: number | undefined;
 
@@ -22,14 +21,10 @@ type currentAttachment = {
 
 class InternalFunctions implements ViewModel {
     static async open() {
-        if (isAnyMenuOpen()) {
-            return;
-        }
-
-        await WebViewController.setOverlaysVisible(false);
+        await AthenaClient.webview.setOverlaysVisible(false);
 
         AthenaClient.webview.ready(PAGE_NAME, InternalFunctions.ready);
-        AthenaClient.webview.open([PAGE_NAME], true, InternalFunctions.close);
+        AthenaClient.webview.openPages([PAGE_NAME], true, InternalFunctions.close);
         AthenaClient.webview.focus();
         AthenaClient.webview.showCursor(true);
 
@@ -40,15 +35,15 @@ class InternalFunctions implements ViewModel {
 
     static async close() {
         alt.toggleGameControls(true);
-        WebViewController.setOverlaysVisible(true);
+        AthenaClient.webview.setOverlaysVisible(true);
 
         view.off(`${PAGE_NAME}:Ready`, InternalFunctions.ready);
         view.off(`${PAGE_NAME}:Close`, InternalFunctions.close);
 
-        WebViewController.closePages([PAGE_NAME]);
+        AthenaClient.webview.closePages([PAGE_NAME]);
 
-        WebViewController.unfocus();
-        WebViewController.showCursor(false);
+        AthenaClient.webview.unfocus();
+        AthenaClient.webview.showCursor(false);
 
         alt.Player.local.isMenuOpen = false;
     }
