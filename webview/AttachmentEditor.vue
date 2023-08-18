@@ -36,41 +36,41 @@
                     Position X {{ posData.pos.x }}
                     <input
                         type="range"
-                        min="0"
-                        max="1"
+                        min="-5"
+                        max="5"
                         class="pos-input"
                         v-model="posData.pos.x"
                         @input="handlePosSwitch"
-                        step="0.1"
+                        step="0.01"
                     />
 
                     Position Y {{ posData.pos.y }}
                     <input
                         type="range"
-                        min="0"
-                        max="1"
+                        min="-5"
+                        max="5"
                         class="pos-input"
                         v-model="posData.pos.y"
                         @input="handlePosSwitch"
-                        step="0.1"
+                        step="0.01"
                     />
 
                     Position Z {{ posData.pos.z }}
                     <input
                         type="range"
-                        min="0"
-                        max="1"
+                        min="-5"
+                        max="5"
                         class="pos-input"
                         v-model="posData.pos.z"
                         @input="handlePosSwitch"
-                        step="0.1"
+                        step="0.01"
                     />
                 </div>
                 <div class="rot">
                     Rotation X {{ posData.rot.x }}
                     <input
                         type="range"
-                        min="0"
+                        min="-360"
                         max="360"
                         class="pos-input"
                         v-model="posData.rot.x"
@@ -80,7 +80,7 @@
                     Rotation Y {{ posData.rot.y }}
                     <input
                         type="range"
-                        min="0"
+                        min="-360"
                         max="360"
                         class="pos-input"
                         v-model="posData.rot.y"
@@ -90,7 +90,7 @@
                     Rotation Z {{ posData.rot.z }}
                     <input
                         type="range"
-                        min="0"
+                        min="-360"
                         max="360"
                         class="pos-input"
                         v-model="posData.rot.z"
@@ -113,7 +113,7 @@
 
 <script lang="ts" setup>
 // @ts-nocheck
-import { defineComponent, ref } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import WebViewEvents from '../../../../../src-webviews/src/utility/webViewEvents';
 import { AttachmentEditorEvents } from '../shared/enums/events';
 import Toolbar from '@components/Toolbar.vue';
@@ -124,13 +124,14 @@ defineComponent({
         Toolbar,
     },
 });
+
 let isPlayingAnim = false;
 let editorObject = ref({
     prop: ref('prop_tool_blowtorch'),
     boneId: ref(57005),
     animationDictionary: ref(''),
     animationName: ref(''),
-    animationFlag: ref(0),
+    animationFlag: ref(2),
 });
 
 let posData = ref({
@@ -187,6 +188,10 @@ function handlePosSwitch() {
 function relayClosePage() {
     WebViewEvents.emitClient(`AttachmentEditor:Close`);
 }
+
+onMounted(() => {
+    WebViewEvents.emitReady('AttachmentEditor');
+});
 </script>
 
 <style scoped>

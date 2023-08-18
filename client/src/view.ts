@@ -2,12 +2,11 @@ import * as alt from 'alt-client';
 import * as native from 'natives';
 import * as AthenaClient from '@AthenaClient/api';
 
-import ViewModel from '../../../../client/models/viewModel';
 import { Vector3 } from 'alt-worker';
 import { playAnimation } from '../../../../client/systems/animations';
 import { AttachmentEditorEvents } from '../../shared/enums/events';
+import { onTicksStart } from '@AthenaClient/events/onTicksStart';
 
-const view = await AthenaClient.webview.get();
 const PAGE_NAME = 'AttachmentEditor';
 let createdObject: number | undefined;
 
@@ -16,42 +15,51 @@ type currentAttachment = {
     boneId: number;
     animationDictionary: string;
     animationName: string;
-    animationFlag: number;
+    animationFlag: string;
 };
 
-class InternalFunctions implements ViewModel {
-    static async open() {
-        await AthenaClient.webview.setOverlaysVisible(false);
-
-        AthenaClient.webview.ready(PAGE_NAME, InternalFunctions.ready);
-        AthenaClient.webview.openPages([PAGE_NAME], true, InternalFunctions.close);
-        AthenaClient.webview.focus();
-        AthenaClient.webview.showCursor(true);
-
-        alt.toggleGameControls(false);
-
-        alt.Player.local.isMenuOpen = true;
-    }
-
-    static async close() {
-        alt.toggleGameControls(true);
-        AthenaClient.webview.setOverlaysVisible(true);
-
-        view.off(`${PAGE_NAME}:Ready`, InternalFunctions.ready);
-        view.off(`${PAGE_NAME}:Close`, InternalFunctions.close);
-
-        AthenaClient.webview.closePages([PAGE_NAME]);
-
-        AthenaClient.webview.unfocus();
-        AthenaClient.webview.showCursor(false);
-
-        alt.Player.local.isMenuOpen = false;
-    }
-
-    static async ready() {
-        console.log('ready');
-    }
+function init() {
+    const page = new AthenaClient.webview.Page({
+        name: 'AttachmentEditor',
+        callbacks: {
+            onReady: async () => {
+                alt.Player.local.setMeta('AttachmentEditor', true);
+            },
+            onClose: () => {
+                alt.Player.local.deleteMeta('AttachmentEditor');
+            },
+        },
+        keybind: {
+            key: 122, // F12
+            useSameKeyToClose: true,
+            description: 'YourPluginPage',
+            identifier: 'your-plugin-page-menu',
+            allowInSpecificPage: 'YourPluginPage',
+        },
+        options: {
+            onOpen: {
+                focus: true,
+                hideHud: true,
+                hideOverlays: true,
+                setIsMenuOpenToTrue: true,
+                showCursor: true,
+                disableControls: 'all',
+                disablePauseMenu: true,
+            },
+            onClose: {
+                hideCursor: true,
+                showHud: true,
+                showOverlays: true,
+                unfocus: true,
+                setIsMenuOpenToFalse: true,
+                enableControls: true,
+                enablePauseMenu: true,
+            },
+        },
+    });
 }
+
+onTicksStart.add(init);
 
 AthenaClient.webview.on(
     AttachmentEditorEvents.EMIT_DATA,
@@ -140,9 +148,11 @@ AthenaClient.webview.on(
 );
 
 AthenaClient.webview.on(AttachmentEditorEvents.PLAY_ANIMATION, (current: currentAttachment, isPlaying: boolean) => {
+    console.log(`Animation Flag: ${current.animationFlag}`);
+    const animationFlagInt = parseInt(current.animationFlag, 10);
     if (current.animationDictionary != '' && current.animationName != '') {
         isPlaying
-            ? playAnimation(current.animationDictionary, current.animationName, current.animationFlag)
+            ? playAnimation(current.animationDictionary, current.animationName, animationFlagInt)
             : native.clearPedTasks(alt.Player.local.scriptID);
     }
 });
@@ -156,24 +166,14 @@ AthenaClient.webview.on(AttachmentEditorEvents.DETACH_OBJECT, () => {
 });
 
 function removeObject() {
-    createdObject
-        ? (native.detachEntity(createdObject, true, true),
-          native.deleteObject(createdObject),
-          (createdObject = undefined))
-        : undefined;
+    if (createdObject) {
+        native.detachEntity(createdObject, true, true);
+        native.deleteObject(createdObject);
+        createdObject = undefined;
+    }
 }
 
-alt.on('keyup', (key) => {
-    if (key === 123 && !alt.Player.local.hasMeta('AttachmentEditor')) {
-        alt.Player.local.setMeta('AttachmentEditor', true);
-        InternalFunctions.open();
-    } else if (key === 123 && alt.Player.local.hasMeta('AttachmentEditor')) {
-        InternalFunctions.close();
-        alt.Player.local.deleteMeta('AttachmentEditor');
-    }
-
-    if (key === 27 && alt.Player.local.hasMeta('AttachmentEditor')) {
-        InternalFunctions.close();
-        alt.Player.local.deleteMeta('AttachmentEditor');
-    }
-});
+alt.setInterval(() => {
+    native.invalidateIdleCam();
+    native.invalidateCinematicVehicleIdleMode();
+}, 15000);
